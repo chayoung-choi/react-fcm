@@ -2,19 +2,17 @@ import {initializeApp} from "firebase/app";
 import {getMessaging, getToken, onMessage} from "firebase/messaging";
 
 const firebaseApp = initializeApp({
-  apiKey: "AIzaSyDXAGmntkmE5fS5-azKSi6KgAiHNz9Yq_s",
-  authDomain: "react-fcm-512a3.firebaseapp.com",
-  projectId: "react-fcm-512a3",
-  storageBucket: "react-fcm-512a3.appspot.com",
-  messagingSenderId: "246151470857",
-  appId: "1:246151470857:web:60e3555a6ff3cc8b2f3dd8",
-  measurementId: "G-WS3VJM11G5"
+  apiKey: process.env.REACT_APP_API_KEY,
+  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_APP_ID,
+  measurementId: process.env.REACT_APP_MEASUREMENT_ID
 });
-
-const VAPID_KEY = "y"
 export const messaging = getMessaging(firebaseApp);
 export const getFcmToken = (setFcmToken) => {
-  return getToken(messaging, {vapidKey: VAPID_KEY}).then((currentToken) => {
+  return getToken(messaging, {vapidKey: process.env.REACT_APP_VAPID_KEY}).then((currentToken) => {
     if (currentToken) {
       console.log('current token for client: ', currentToken);
       setFcmToken(currentToken);
