@@ -12,6 +12,9 @@ function App() {
   const [notifications, setNotifications] = useState([]);
   const [fcmToken, setFcmToken] = useState(null);
   const [copyProp, setCopyProp] = useState({value: '', copied: false});
+  const [userAgent, setUserAgent] = useState("");
+  const [isKakaotalk, setIsKakaotalk] = useState(false);
+  const [isIos, setIsIos] = useState(false);
 
   onMessageListener().then(payload => {
     setNotifications(state => state.concat({
@@ -34,6 +37,26 @@ function App() {
     setCopyProp({value: fcmToken, copied: false})
   }, [fcmToken])
 
+  useEffect(() => {
+    const checkUserAgent = navigator.userAgent.toLowerCase()
+    if (checkUserAgent.indexOf("kakaotalk") != -1) {
+      setIsKakaotalk(true)
+    }
+    if (checkUserAgent.indexOf("iphone") != -1
+      || checkUserAgent.indexOf("ipad") != -1
+      || checkUserAgent.indexOf("ipod") != -1) {
+      setIsIos(true)
+    }
+
+    setUserAgent(navigator.userAgent)
+
+  }, [])
+
+  const openChrome = () => {
+    const url = window.location.href.replace("https://", "")
+    window.location.href = `intent://${url}/#Intent;action=android.intent.action.VIEW;scheme=https;end;`
+  }
+
   return (
     <div className="App container-fluid">
       <div className="d-flex flex-column align-items-center justify-content-center align-content-center pt-3">
@@ -44,16 +67,26 @@ function App() {
         <img src={logo} className="App-logo" alt="logo"/>
         {fcmToken && <h3> Notification permission enabled 👍🏻 </h3>}
         {!fcmToken && <h3> Need notification permission ❗️ </h3>}
-        <Accordion className="text-break">
-          <Accordion.Item eventKey="0">
-            <Accordion.Header>View Token</Accordion.Header>
-            <Accordion.Body>
-              {fcmToken}
-            </Accordion.Body>
-          </Accordion.Item>
-        </Accordion>
+        {isKakaotalk &&
+          <Button onClick={openChrome} color="warning">다른 브라우저로 열기</Button>
+        }
+        {isIos && <p>IOS는 오른쪽 아래 다른 브라우저로 열어주세요.</p>}
+        <p></p>
+        <p className="text-center">
+          {userAgent}
+        </p>
+        {fcmToken &&
+          <Accordion className="text-break">
+            <Accordion.Item eventKey="0">
+              <Accordion.Header>View Token</Accordion.Header>
+              <Accordion.Body>
+                {fcmToken}
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
+        }
         <CopyToClipboard text={copyProp.value || ""} onCopy={() => copy()}>
-          <Button className="btn-success mt-3">Copy</Button>
+          <Button className="btn-success mt-3" disabled={!fcmToken}>Copy</Button>
         </CopyToClipboard>
         <div className="d-flex py-3 w-100">
           <ListGroup as="ol" numbered className="w-100">

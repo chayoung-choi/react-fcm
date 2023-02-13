@@ -21,30 +21,35 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage(function (payload) {
   console.log('Received background message ', payload);
 
-  const notificationTitle = "[ServiceBack] " + payload.notification.title;
-  const notificationOptions = {
-    body: payload.notification.body,
-    icon: "/favicon.ico"
-  };
 
-  self.registration.showNotification(notificationTitle,
-    notificationOptions);
+  self.addEventListener('push', (event) => {
+    const notificationTitle = "[ServiceBack] " + payload.notification.title;
+    const notificationOptions = {
+      body: payload.notification.body,
+      icon: "/favicon.ico"
+    };
+    const data = event.data.json()
+    console.log("[push event]", data)
+    self.registration.showNotification(notificationTitle, notificationOptions);
+  })
 
   self.addEventListener('notificationclick', (event) => {
     console.log('On notification click: ', event.notification.tag);
     event.notification.close();
+    event.waitUntil(self.clients.openWindow("/"))
+
 
     // This looks to see if the current is already open and
     // focuses if it is
-    event.waitUntil(clients.matchAll({
-      type: "window"
-    }).then((clientList) => {
-      for (const client of clientList) {
-        if (client.url === '/' && 'focus' in client)
-          return client.focus();
-      }
-      if (clients.openWindow)
-        return clients.openWindow('/');
-    }));
+    // event.waitUntil(clients.matchAll({
+    //   type: "window"
+    // }).then((clientList) => {
+    //   for (const client of clientList) {
+    //     if (client.url === '/' && 'focus' in client)
+    //       return client.focus();
+    //   }
+    //   if (clients.openWindow)
+    //     return clients.openWindow('/');
+    // }));
   });
 });
