@@ -1,0 +1,15 @@
+{
+  "hosting": {
+    "site": "react-fcm-512a3",
+    "public": "build",
+    "rewrites": [ {
+      "source": "**",
+      "destination": "/index.html"
+    } ],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
