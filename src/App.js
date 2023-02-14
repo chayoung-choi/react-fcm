@@ -21,7 +21,7 @@ function App() {
       ...payload.notification,
     }))
     toast(`${payload.notification.body}`)
-    console.log(payload);
+    console.log("[App onMessageListener]", payload);
   }).catch(err => console.log('failed: ', err));
 
   const copy = () => {

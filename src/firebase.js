@@ -33,6 +33,7 @@ export const getFcmToken = (setFcmToken) => {
 export const onMessageListener = () =>
   new Promise((resolve) => {
     onMessage(messaging, (payload) => {
+      console.log("[firebase.js onMessageListener]", payload)
       resolve(payload);
     });
   });
