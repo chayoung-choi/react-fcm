@@ -7,6 +7,8 @@ import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import {getFcmToken, onMessageListener} from "./firebase";
 import {CopyToClipboard} from "react-copy-to-clipboard/src";
+import SendBox from "./SendBox";
+import moment from "moment";
 
 function App() {
   const [notifications, setNotifications] = useState([]);
@@ -19,6 +21,7 @@ function App() {
   onMessageListener().then(payload => {
     setNotifications(state => state.concat({
       ...payload.notification,
+      date: moment().format('YYYY-MM-DD HH:mm:ss')
     }))
     toast(`${payload.notification.body}`)
     console.log("[App onMessageListener]", payload);
@@ -39,12 +42,12 @@ function App() {
 
   useEffect(() => {
     const checkUserAgent = navigator.userAgent.toLowerCase()
-    if (checkUserAgent.indexOf("kakaotalk") != -1) {
+    if (checkUserAgent.indexOf("kakaotalk") !== -1) {
       setIsKakaotalk(true)
     }
-    if (checkUserAgent.indexOf("iphone") != -1
-      || checkUserAgent.indexOf("ipad") != -1
-      || checkUserAgent.indexOf("ipod") != -1) {
+    if (checkUserAgent.indexOf("iphone") !== -1
+      || checkUserAgent.indexOf("ipad") !== -1
+      || checkUserAgent.indexOf("ipod") !== -1) {
       setIsIos(true)
     }
 
@@ -76,18 +79,25 @@ function App() {
           {userAgent}
         </p>
         {fcmToken &&
-          <Accordion className="text-break">
-            <Accordion.Item eventKey="0">
-              <Accordion.Header>View Token</Accordion.Header>
-              <Accordion.Body>
-                {fcmToken}
-              </Accordion.Body>
-            </Accordion.Item>
-          </Accordion>
+          <>
+            <div className="d-flex">
+              <Accordion className="text-break">
+                <Accordion.Item eventKey="0">
+                  <Accordion.Header>View Token</Accordion.Header>
+                  <Accordion.Body>
+                    {fcmToken}
+                  </Accordion.Body>
+                </Accordion.Item>
+              </Accordion>
+              <CopyToClipboard text={copyProp.value || ""} onCopy={() => copy()}>
+                <Button className="btn-success mt-3" disabled={!fcmToken}>Token Copy</Button>
+              </CopyToClipboard>
+            </div>
+            <div className="mt-3">
+              <SendBox/>
+            </div>
+          </>
         }
-        <CopyToClipboard text={copyProp.value || ""} onCopy={() => copy()}>
-          <Button className="btn-success mt-3" disabled={!fcmToken}>Copy</Button>
-        </CopyToClipboard>
         <div className="d-flex py-3 w-100">
           <ListGroup as="ol" numbered className="w-100">
             {notifications.map((item, idx) => (
@@ -100,6 +110,7 @@ function App() {
                   <div className="fw-bold">{item.title}</div>
                   {item.body}
                 </div>
+                <Badge className="sm">{item.date}</Badge>
               </ListGroup.Item>
             ))}
           </ListGroup>
