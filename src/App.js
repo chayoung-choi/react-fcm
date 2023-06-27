@@ -61,14 +61,34 @@ function App() {
   }
 
   return (
-      <div className="App container-fluid">
+      <div className="App container-fluid ">
         <h1>React FCM APP</h1>
         <h6>
           <Badge>v{process.env.REACT_APP_VER}</Badge>
         </h6>
-        <div className="w-100">
-          <SendBox/>
-        </div>
+        {notifications.length > 0 && (
+            <div className="py-3 w-100">
+              <p className="text-start">Push Log</p>
+              <div className="d-flex w-100">
+                <ListGroup as="ol" numbered className="w-100">
+                  {notifications.map((item, idx) => (
+                      <ListGroup.Item
+                          key={idx}
+                          as="li"
+                          className="d-flex justify-content-between align-items-start"
+                      >
+                        <div className="ms-2 me-auto">
+                          <div className="fw-bold">{item.title}</div>
+                          {item.body}
+                        </div>
+                        <Badge className="sm">{item.date}</Badge>
+                      </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              </div>
+            </div>
+        )}
+        <SendBox/>
         <div
             className="d-flex flex-column align-items-center justify-content-center align-content-center">
           <div className="w-50" hidden={fcmToken !== ""}>
@@ -83,16 +103,14 @@ function App() {
           }
           {isIos && <p>IOS는 오른쪽 아래 다른 브라우저로 열어주세요.</p>}
           <p></p>
-          <p className="text-center text-secondary">
-            {userAgent}
-          </p>
           {fcmToken &&
               <>
                 <div className="d-grid">
                   <span className="text-info">Push Token</span>
                   <CopyToClipboard text={copyProp.value || ""}
                                    onCopy={() => copy()}>
-                    <Button variant="outline-info" className="btn-sm"
+                    <Button variant="outline-info"
+                            className="btn-sm text-break"
                             disabled={!fcmToken}>
                       {fcmToken}
                     </Button>
@@ -100,23 +118,9 @@ function App() {
                 </div>
               </>
           }
-          <div className="d-flex py-3 w-100">
-            <ListGroup as="ol" numbered className="w-100">
-              {notifications.map((item, idx) => (
-                  <ListGroup.Item
-                      key={idx}
-                      as="li"
-                      className="d-flex justify-content-between align-items-start"
-                  >
-                    <div className="ms-2 me-auto">
-                      <div className="fw-bold">{item.title}</div>
-                      {item.body}
-                    </div>
-                    <Badge className="sm">{item.date}</Badge>
-                  </ListGroup.Item>
-              ))}
-            </ListGroup>
-          </div>
+          <p className="text-center text-secondary">
+            {userAgent}
+          </p>
         </div>
         <ToastContainer/>
       </div>

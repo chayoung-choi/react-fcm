@@ -1,4 +1,4 @@
-import {Button, Card} from "react-bootstrap";
+import {Button} from "react-bootstrap";
 import {useState} from "react";
 import axios from "axios";
 
@@ -46,45 +46,58 @@ const SendBox = () => {
   }
 
   return <>
-    <Card className="text-dark">
-      <Card.Header><h5 className="mb-0">Push 발송하기</h5></Card.Header>
-      <Card.Body>
-        <div className="form-floating mb-1">
-          <input type="email"
-                 className={"form-control form-control-sm" + (isInvalid
-                     ? " is-invalid" : "")}
-                 id="floatingInput1"
-                 value={notiToken}
-                 onChange={event => {
-                   setIsInvalid(false)
-                   setNotiToken(event.target.value);
-                 }}
-                 placeholder="token"/>
-          <label htmlFor="floatingInput1">수신자 token</label>
+    <div className="accordion w-100" id="accordionExample">
+      <div className="accordion-item">
+        <h2 className="accordion-header">
+          <button className="accordion-button collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                  aria-expanded="false" aria-controls="collapseOne">
+            <h5 className="mb-0">Push 발송하기</h5>
+          </button>
+        </h2>
+        <div id="collapseOne" className="accordion-collapse collapse"
+             data-bs-parent="#accordionExample">
+          <div className="accordion-body">
+            <div className="form-floating mb-1">
+              <input type="text"
+                     className={"form-control form-control-sm" + (isInvalid
+                         ? " is-invalid" : "")}
+                     id="floatingInput1"
+                     value={notiToken}
+                     onChange={event => {
+                       setIsInvalid(false)
+                       setNotiToken(event.target.value);
+                     }}
+                     placeholder="token"/>
+              <label htmlFor="floatingInput1">수신자 token</label>
+            </div>
+            <div className="form-floating mb-1">
+              <input type="text" className="form-control form-control-sm"
+                     id="floatingInput2"
+                     value={notiTitle}
+                     onChange={event => setNotiTitle(event.target.value)}
+                     placeholder="Push Title"/>
+              <label htmlFor="floatingInput2">Title</label>
+            </div>
+            <div className="form-floating mb-1">
+              <input type="text" className="form-control form-control-sm"
+                     id="floatingInput3"
+                     value={notiBody}
+                     onChange={event => setNotiBody(event.target.value)}
+                     placeholder="Message"/>
+              <label htmlFor="floatingInput3">Message</label>
+            </div>
+            <div className="d-flex justify-content-end">
+              <Button onClick={sendPush}
+                      className="d-flex justify-content-end">발송</Button>
+            </div>
+            <div className="bg-light border rounded-1 mt-1 p-2 text-break">
+              {responseData}
+            </div>
+          </div>
         </div>
-        <div className="form-floating mb-1">
-          <input type="email" className="form-control form-control-sm"
-                 id="floatingInput2"
-                 value={notiTitle}
-                 onChange={event => setNotiTitle(event.target.value)}
-                 placeholder="Push Title"/>
-          <label htmlFor="floatingInput2">Title</label>
-        </div>
-        <div className="form-floating mb-1">
-          <input type="email" className="form-control form-control-sm"
-                 id="floatingInput3"
-                 value={notiBody}
-                 onChange={event => setNotiBody(event.target.value)}
-                 placeholder="Message"/>
-          <label htmlFor="floatingInput3">Message</label>
-        </div>
-        <Button onClick={sendPush}>발송</Button>
-      </Card.Body>
-      <Card.Footer>
-        {responseData}
-        {"{\"multicast_idmulticast_idmulticast_idmulticast_idmulticast_idmulticast_idmulticast_idmulticast_idmulticast_id\":6910996485230823000,\"success\":1,\"failure\":0,\"canonical_ids\":0,\"results\":[{\"message_id\":\"13b876f5-fcc4-428a-bb84-71dd6b942809\"}]}{\"multicast_id\":6910996485230823000,\"success\":1,\"failure\":0,\"canonical_ids\":0,\"results\":[{\"message_id\":\"13b876f5-fcc4-428a-bb84-71dd6b942809\"}]}"}
-      </Card.Footer>
-    </Card>
+      </div>
+    </div>
   </>
 }
 export default SendBox
