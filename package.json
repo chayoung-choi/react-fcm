@@ -23,7 +23,7 @@
   "scripts": {
     "start": "env-cmd -f .env.local react-scripts start",
     "build": "env-cmd -f .env.local react-scripts build",
-    "deploy": "env-cmd -f .env.local react-scripts build && firebase deploy --project react-fcm-512a3"
+    "deploy": "env-cmd -f .env.local react-scripts build && firebase deploy"
   },
   "eslintConfig": {
     "extends": [
