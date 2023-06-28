@@ -11,21 +11,19 @@ const firebaseApp = initializeApp({
   appId: process.env.REACT_APP_APP_ID,
   measurementId: process.env.REACT_APP_MEASUREMENT_ID
 });
-export const messaging = getMessaging(firebaseApp)
-
-// const messaging = (async () => {
-//   try {
-//     const isSupportedBrowser = await isSupported();
-//     if (isSupportedBrowser) {
-//       return getMessaging(firebaseApp);
-//     }
-//     console.log('Firebase not supported this browser');
-//     return null;
-//   } catch (err) {
-//     console.log(err);
-//     return null;
-//   }
-// })();
+const messaging = (async () => {
+  try {
+    const isSupportedBrowser = await isSupported();
+    if (isSupportedBrowser) {
+      return getMessaging(firebaseApp);
+    }
+    console.log('Firebase not supported this browser');
+    return null;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+})();
 
 export const db = getFirestore(firebaseApp);
 export const getFcmToken = (setFcmToken) => {
