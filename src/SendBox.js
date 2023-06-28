@@ -1,5 +1,5 @@
 import {Button} from "react-bootstrap";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import axios from "axios";
 
 const SendBox = () => {
@@ -7,15 +7,35 @@ const SendBox = () => {
   const [responseData, setResponseData] = useState("Response")
   const [notiTitle, setNotiTitle] = useState("Push Test")
   const [notiBody, setNotiBody] = useState("Push 내용입니다.")
-  const [notiToken, setNotiToken] = useState(
-      process.env.REACT_APP_FCM_DEFAULT_TOKEN)
+  const [inputToken, setInputToken] = useState()
   const [isInvalid, setIsInvalid] = useState(false)
+  const [selectedTokenList, setSelectedTokenList] = useState()
+
+  const tokenList = [{
+    name: "갤럭시10",
+    value: process.env.REACT_APP_FCM_TOKEN1,
+    defaultCheck: true
+  }, {
+    name: "DK Mac",
+    value: process.env.REACT_APP_FCM_TOKEN2,
+    defaultCheck: true
+  }]
+
+  useEffect(() => {
+    setSelectedTokenList(
+        tokenList.filter(t => t.defaultCheck).map(t => t.value))
+  }, [])
 
   const sendPush = () => {
-    if (notiToken === "") {
+    if (inputToken === "" && selectedTokenList.length === 0) {
       setIsInvalid(true)
       return
     }
+
+    if (inputToken !== "") {
+      setSelectedTokenList(state => state.concat(inputToken))
+    }
+    setResponseData("")
 
     axios.post('https://fcm.googleapis.com/fcm/send',
         {
@@ -25,7 +45,7 @@ const SendBox = () => {
             "click_action": "https://react-fcm-512a3.firebaseapp.com",
             "icon": "/favicon.ico"
           },
-          "to": notiToken
+          "registration_ids": selectedTokenList
         },
         {
           headers: {
@@ -37,12 +57,21 @@ const SendBox = () => {
     )
     .then((response) => {
       console.log(response);
-      setResponseData(JSON.stringify(response.data))
+      setResponseData(response)
     })
     .catch((response) => {
       console.error(response)
-      setResponseData(JSON.stringify(response.data))
+      setResponseData(response)
     });
+  }
+
+  const onChangeCheckBox = ({checked, value}) => {
+    if (checked) {
+      setSelectedTokenList(state => state.concat(value));
+    } else {
+      setSelectedTokenList(state => state.filter((v) => v !== value));
+    }
+
   }
 
   return <>
@@ -63,13 +92,36 @@ const SendBox = () => {
                      className={"form-control form-control-sm" + (isInvalid
                          ? " is-invalid" : "")}
                      id="floatingInput1"
-                     value={notiToken}
+                     value={inputToken}
                      onChange={event => {
                        setIsInvalid(false)
-                       setNotiToken(event.target.value);
+                       setInputToken(event.target.value);
                      }}
                      placeholder="token"/>
               <label htmlFor="floatingInput1">수신자 token</label>
+            </div>
+            <div>
+              <small>
+                {tokenList.map((t, i) => (
+                    <div className="form-check d-inline-block me-3"
+                         key={t.name}>
+                      <input className="form-check-input" type="checkbox"
+                             value={t.value}
+                             defaultChecked={t.defaultCheck}
+                          // onChange={e => onChangeCheckBox(
+                          //     e.target)}
+                             onChange={({
+                               target
+                             }) => onChangeCheckBox(target)}
+                             name="token"
+                             id={'check' + i}/>
+                      <label className="form-check-label"
+                             htmlFor={'check' + i}>
+                        {t.name}
+                      </label>
+                    </div>
+                ))}
+              </small>
             </div>
             <div className="form-floating mb-1">
               <input type="text" className="form-control form-control-sm"
@@ -87,9 +139,9 @@ const SendBox = () => {
                      placeholder="Message"/>
               <label htmlFor="floatingInput3">Message</label>
             </div>
-            <div className="d-flex justify-content-end">
-              <Button onClick={sendPush}
-                      className="d-flex justify-content-end">발송</Button>
+            <div className="d-flex justify-content-end gap-1">
+              <Button
+                  onClick={sendPush}>발송</Button>
             </div>
             <div className="bg-light border rounded-1 mt-1 p-2 text-break">
               {responseData}
