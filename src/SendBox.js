@@ -9,7 +9,7 @@ const SendBox = () => {
   const [notiBody, setNotiBody] = useState("Push 내용입니다.")
   const [inputToken, setInputToken] = useState()
   const [isInvalid, setIsInvalid] = useState(false)
-  const [selectedTokenList, setSelectedTokenList] = useState([])
+  const [selectedTokenList, setSelectedTokenList] = useState()
 
   const tokenList = [{
     name: "갤럭시10",
@@ -35,36 +35,34 @@ const SendBox = () => {
     if (inputToken !== "") {
       setSelectedTokenList(state => state.concat(inputToken))
     }
-    setResponseData([])
+    setResponseData("")
 
-    selectedTokenList.map(token => {
-      axios.post('https://fcm.googleapis.com/fcm/send',
-          {
-            "notification": {
-              "title": notiTitle,
-              "body": notiBody,
-              "click_action": "https://react-fcm-512a3.firebaseapp.com",
-              "icon": "/favicon.ico"
-            },
-            "to": token
+    axios.post('https://fcm.googleapis.com/fcm/send',
+        {
+          "notification": {
+            "title": notiTitle,
+            "body": notiBody,
+            "click_action": "https://react-fcm-512a3.firebaseapp.com",
+            "icon": "/favicon.ico"
           },
-          {
-            headers: {
-              'Content-type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': 'key=' + process.env.REACT_APP_FCM_AUTH_KEY
-            }
+          "registration_ids": selectedTokenList
+        },
+        {
+          headers: {
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'key=' + process.env.REACT_APP_FCM_AUTH_KEY
           }
-      )
-      .then((response) => {
-        console.log(response);
-        setResponseData(state => state.concat(JSON.stringify(response.data)))
-      })
-      .catch((response) => {
-        console.error(response)
-        setResponseData(state => state.concat(JSON.stringify(response.data)))
-      });
+        }
+    )
+    .then((response) => {
+      console.log(response);
+      setResponseData(response)
     })
+    .catch((response) => {
+      console.error(response)
+      setResponseData(response)
+    });
   }
 
   const onChangeCheckBox = ({checked, value}) => {
