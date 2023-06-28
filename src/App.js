@@ -61,69 +61,112 @@ function App() {
   }
 
   return (
-      <div className="App container-fluid ">
-        <h1>React FCM APP</h1>
-        <h6>
-          <Badge>v{process.env.REACT_APP_VER}</Badge>
-        </h6>
-        {notifications.length > 0 && (
-            <div className="py-3 w-100">
-              <p className="text-start">Push Log</p>
-              <div className="d-flex w-100">
-                <ListGroup as="ol" numbered className="w-100">
-                  {notifications.map((item, idx) => (
-                      <ListGroup.Item
-                          key={idx}
-                          as="li"
-                          className="d-flex justify-content-between align-items-start"
-                      >
-                        <div className="ms-2 me-auto">
-                          <div className="fw-bold">{item.title}</div>
-                          {item.body}
-                        </div>
-                        <Badge className="sm">{item.date}</Badge>
-                      </ListGroup.Item>
-                  ))}
-                </ListGroup>
+      <>
+        <div className="App">
+          <nav className="navbar border-bottom border-secondary"
+               style={{backgroundColor: "#282c34"}}>
+            <div className="container-fluid d-flex justify-content-center">
+              <div
+                  className="navbar-brand text-white d-flex">
+                <img src="/logo192.png" alt="Logo"
+                     width="30" height="30"
+                     className="App-logo align-self-center"/>
+                <div className="d-flex flex-column ">
+                  <div>
+                    <h5 className="mx-2 mb-0">
+                      React FCM APP
+                    </h5>
+                  </div>
+                  <div className="d-flex justify-content-center">
+                    <h6 className="m-0">
+                      <small>
+                        <Badge>v{process.env.REACT_APP_VER}</Badge>
+                      </small>
+                    </h6>
+                  </div>
+                </div>
+                <img src="/firebase-message.png" alt="Logo"
+                     className="align-self-center"
+                     height="30"/>
               </div>
             </div>
-        )}
-        <SendBox/>
-        <div
-            className="d-flex flex-column align-items-center justify-content-center align-content-center">
-          <div className="w-50" hidden={fcmToken !== ""}>
-            <img src={logo} className="App-logo h-auto w-100"
-                 alt="logo"/>
+          </nav>
+          <div className="container-fluid p-3">
+            <div className="row mb-3">
+              <div className="col-12 mb-3 text-center">
+                {fcmToken && <h3> Notification permission enabled 👍🏻 </h3>}
+                {!fcmToken && <h3> Need notification permission ❗️ </h3>}
+              </div>
+
+              <div className="col-md-6">
+                <SendBox/>
+              </div>
+              <div className="col-md-6">
+                {notifications.length > 0 && (
+                    <div className="py-3 w-100">
+                      <p className="text-start">Push Log</p>
+                      <div className="d-flex w-100">
+                        <ListGroup as="ol" numbered className="w-100">
+                          {notifications.map((item, idx) => (
+                              <ListGroup.Item
+                                  key={idx}
+                                  as="li"
+                                  className="d-flex justify-content-between align-items-start"
+                              >
+                                <div className="ms-2 me-auto">
+                                  <div className="fw-bold">{item.title}</div>
+                                  {item.body}
+                                </div>
+                                <Badge className="sm">{item.date}</Badge>
+                              </ListGroup.Item>
+                          ))}
+                        </ListGroup>
+                      </div>
+                    </div>
+                )}
+              </div>
+            </div>
+
+
+            <div
+                className="d-flex flex-column align-items-center justify-content-center align-content-center">
+              <div className="w-50" hidden={fcmToken !== ""}>
+                <img src={logo} className="App-logo h-auto w-100"
+                     alt="logo"/>
+              </div>
+
+              {isKakaotalk &&
+                  <Button onClick={openChrome} color="warning">다른 브라우저로
+                    열기</Button>
+              }
+              {isIos && <p>IOS는 오른쪽 아래 다른 브라우저로 열어주세요.</p>}
+              {fcmToken &&
+                  <>
+                    <div className="d-grid">
+                      <span className="text-info">Push Token</span>
+                      <CopyToClipboard text={copyProp.value || ""}
+                                       onCopy={() => copy()}>
+                        <Button variant="outline-info"
+                                className="btn-sm text-break"
+                                disabled={!fcmToken}>
+                          <small>
+                            {fcmToken}
+                          </small>
+                        </Button>
+                      </CopyToClipboard>
+                    </div>
+                  </>
+              }
+              <p className="text-center text-secondary">
+                <small>
+                  {userAgent}
+                </small>
+              </p>
+            </div>
+            <ToastContainer/>
           </div>
-          <p></p>
-          {fcmToken && <h3> Notification permission enabled 👍🏻 </h3>}
-          {!fcmToken && <h3> Need notification permission ❗️ </h3>}
-          {isKakaotalk &&
-              <Button onClick={openChrome} color="warning">다른 브라우저로 열기</Button>
-          }
-          {isIos && <p>IOS는 오른쪽 아래 다른 브라우저로 열어주세요.</p>}
-          <p></p>
-          {fcmToken &&
-              <>
-                <div className="d-grid">
-                  <span className="text-info">Push Token</span>
-                  <CopyToClipboard text={copyProp.value || ""}
-                                   onCopy={() => copy()}>
-                    <Button variant="outline-info"
-                            className="btn-sm text-break"
-                            disabled={!fcmToken}>
-                      {fcmToken}
-                    </Button>
-                  </CopyToClipboard>
-                </div>
-              </>
-          }
-          <p className="text-center text-secondary">
-            {userAgent}
-          </p>
         </div>
-        <ToastContainer/>
-      </div>
+      </>
   );
 }
 
