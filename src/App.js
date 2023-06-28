@@ -2,21 +2,23 @@ import logo from './logo.svg';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, {useEffect, useState} from "react";
-import {Badge, Button, ListGroup} from "react-bootstrap";
+import {Badge, Button, ButtonGroup, ListGroup} from "react-bootstrap";
 import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import {getFcmToken, onMessageListener} from "./firebase";
+import {db, getFcmToken, onMessageListener} from "./firebase";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import {CopyToClipboard} from "react-copy-to-clipboard/src";
 import SendBox from "./SendBox";
 import moment from "moment";
 
 function App() {
   const [notifications, setNotifications] = useState([]);
-  const [fcmToken, setFcmToken] = useState(null);
+  const [fcmToken, setFcmToken] = useState('');
   const [copyProp, setCopyProp] = useState({value: '', copied: false});
   const [userAgent, setUserAgent] = useState("");
   const [isKakaotalk, setIsKakaotalk] = useState(false);
   const [isIos, setIsIos] = useState(false);
+  const [tokens, setTokens] = useState([]);
 
   onMessageListener().then(payload => {
     setNotifications(state => state.concat({
@@ -32,8 +34,31 @@ function App() {
     setCopyProp({value: fcmToken, copied: true})
   }
 
+  const addToken = async () => {
+    const data = {
+      name: "Japan",
+      token: fcmToken,
+      userAgent: userAgent,
+      defaultCheck: false
+    }
+    const docRef = await addDoc(collection(db, "tokens"), data);
+
+    setTokens(state => state.concat(data))
+  }
+
+  const getTokens = async () => {
+    const querySnapshot = await getDocs(collection(db, "tokens"));
+    querySnapshot.forEach((doc) => {
+      console.log(doc.id, " => ", doc.data());
+      setTokens(state => state.concat(doc.data()))
+    });
+  }
   useEffect(() => {
-    getFcmToken(setFcmToken);
+    getTokens().then(r => console.log(r))
+  }, [])
+
+  useEffect(() => {
+    // getFcmToken(setFcmToken);
   }, [])
 
   useEffect(() => {
@@ -59,6 +84,8 @@ function App() {
     const url = window.location.href.replace("https://", "")
     window.location.href = `intent://${url}/#Intent;action=android.intent.action.VIEW;scheme=https;end;`
   }
+
+
 
   return (
       <>
@@ -95,11 +122,10 @@ function App() {
             <div className="row mb-3">
               <div className="col-12 mb-3 text-center">
                 {fcmToken && <h3> Notification permission enabled 👍🏻 </h3>}
-                {!fcmToken && <h3> Need notification permission ❗️ </h3>}
+                {!fcmToken && <h3> Need notification permission ❗️ <Button onClick={() => getFcmToken(setFcmToken)}>getToken</Button></h3>}
               </div>
-
               <div className="col-md-6">
-                <SendBox/>
+                <SendBox tokenList={tokens}/>
               </div>
               <div className="col-md-6">
                 {notifications.length > 0 && (
@@ -139,21 +165,28 @@ function App() {
                   <Button onClick={openChrome} color="warning">다른 브라우저로
                     열기</Button>
               }
-              {isIos && <p>IOS는 오른쪽 아래 다른 브라우저로 열어주세요.</p>}
+              {isIos && <p>IOS는 다른 브라우저로 열어주세요.</p>}
               {fcmToken &&
                   <>
                     <div className="d-grid">
                       <span className="text-info">Push Token</span>
+                          <small>
+                            <ButtonGroup>
+
+
                       <CopyToClipboard text={copyProp.value || ""}
                                        onCopy={() => copy()}>
                         <Button variant="outline-info"
-                                className="btn-sm text-break"
+                                className="text-break"
                                 disabled={!fcmToken}>
-                          <small>
                             {fcmToken}
-                          </small>
                         </Button>
                       </CopyToClipboard>
+                      <Button variant="outline-info" onClick={addToken}>
+                        💾
+                      </Button>
+                            </ButtonGroup>
+                          </small>
                     </div>
                   </>
               }

@@ -2,7 +2,11 @@ import {Button} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import axios from "axios";
 
-const SendBox = () => {
+const SendBox = (props) => {
+
+  const {
+  tokenList
+  } = props
 
   const [responseData, setResponseData] = useState("Response")
   const [notiTitle, setNotiTitle] = useState("Push Test")
@@ -10,16 +14,6 @@ const SendBox = () => {
   const [inputToken, setInputToken] = useState()
   const [isInvalid, setIsInvalid] = useState(false)
   const [selectedTokenList, setSelectedTokenList] = useState()
-
-  const tokenList = [{
-    name: "갤럭시10",
-    value: process.env.REACT_APP_FCM_TOKEN1,
-    defaultCheck: true
-  }, {
-    name: "DK Mac",
-    value: process.env.REACT_APP_FCM_TOKEN2,
-    defaultCheck: true
-  }]
 
   useEffect(() => {
     setSelectedTokenList(
