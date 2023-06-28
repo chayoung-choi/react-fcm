@@ -1,5 +1,6 @@
 import {initializeApp} from "firebase/app";
-import {getMessaging, getToken, onMessage} from "firebase/messaging";
+import {getMessaging, getToken, onMessage, isSupported} from "firebase/messaging";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseApp = initializeApp({
   apiKey: process.env.REACT_APP_API_KEY,
@@ -10,7 +11,23 @@ const firebaseApp = initializeApp({
   appId: process.env.REACT_APP_APP_ID,
   measurementId: process.env.REACT_APP_MEASUREMENT_ID
 });
-export const messaging = getMessaging(firebaseApp);
+export const messaging = getMessaging(firebaseApp)
+
+// const messaging = (async () => {
+//   try {
+//     const isSupportedBrowser = await isSupported();
+//     if (isSupportedBrowser) {
+//       return getMessaging(firebaseApp);
+//     }
+//     console.log('Firebase not supported this browser');
+//     return null;
+//   } catch (err) {
+//     console.log(err);
+//     return null;
+//   }
+// })();
+
+export const db = getFirestore(firebaseApp);
 export const getFcmToken = (setFcmToken) => {
   return getToken(messaging, {vapidKey: process.env.REACT_APP_VAPID_KEY}).then((currentToken) => {
     if (currentToken) {
