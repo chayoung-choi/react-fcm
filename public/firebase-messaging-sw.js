@@ -26,6 +26,6 @@ messaging.onBackgroundMessage(function (payload) {
   //   body: payload.notification.body,
   //   icon: '/favicon.ico'
   // };
-
+  //
   // self.registration.showNotification(notificationTitle, notificationOptions);
 })

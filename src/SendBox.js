@@ -5,13 +5,13 @@ import axios from "axios";
 const SendBox = (props) => {
 
   const {
-  tokenList
+    tokenList
   } = props
 
   const [responseData, setResponseData] = useState("Response")
   const [notiTitle, setNotiTitle] = useState("Push Test")
   const [notiBody, setNotiBody] = useState("Push 내용입니다.")
-  const [inputToken, setInputToken] = useState()
+  const [inputToken, setInputToken] = useState('')
   const [isInvalid, setIsInvalid] = useState(false)
   const [selectedTokenList, setSelectedTokenList] = useState()
 
@@ -21,7 +21,8 @@ const SendBox = (props) => {
   }, [])
 
   const sendPush = () => {
-    if (inputToken === "" && selectedTokenList.length === 0) {
+    console.log('sendPush', inputToken, selectedTokenList)
+    if (inputToken === '' && selectedTokenList.length === 0) {
       setIsInvalid(true)
       return
     }
@@ -51,11 +52,11 @@ const SendBox = (props) => {
     )
     .then((response) => {
       console.log(response);
-      setResponseData(response)
+      setResponseData(JSON.stringify(response.data))
     })
     .catch((response) => {
       console.error(response)
-      setResponseData(response)
+      setResponseData(JSON.stringify(response.data))
     });
   }
 
@@ -65,11 +66,10 @@ const SendBox = (props) => {
     } else {
       setSelectedTokenList(state => state.filter((v) => v !== value));
     }
-
   }
 
   return <>
-    <div className="accordion w-100" id="accordionExample">
+    <div className="accordion w-100" id="accordionExample" key="sendBox">
       <div className="accordion-item">
         <h2 className="accordion-header">
           <button className="accordion-button collapsed" type="button"
@@ -98,7 +98,7 @@ const SendBox = (props) => {
               <small>
                 {tokenList.map((t, i) => (
                     <div className="form-check d-inline-block me-3"
-                         key={t.name}>
+                         key={t.id}>
                       <input className="form-check-input" type="checkbox"
                              value={t.value}
                              defaultChecked={t.defaultCheck}
@@ -135,7 +135,7 @@ const SendBox = (props) => {
             </div>
             <div className="d-flex justify-content-end gap-1">
               <Button
-                  onClick={sendPush}>발송</Button>
+                  onClick={() => sendPush()}>발송</Button>
             </div>
             <div className="bg-light border rounded-1 mt-1 p-2 text-break">
               {responseData}
