@@ -17,8 +17,6 @@ const firebaseApp = initializeApp({
   measurementId: process.env.REACT_APP_MEASUREMENT_ID
 });
 
-// const messaging = await isSupported() ? getMessaging(firebaseApp) : null
-
 const messaging = (async () => {
   try {
     const isSupportedBrowser = await isSupported();

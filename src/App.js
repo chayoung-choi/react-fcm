@@ -52,13 +52,13 @@ function App() {
     const querySnapshot = await getDocs(collection(db, "tokens"));
     let result = [];
     querySnapshot.forEach((doc) => {
-      console.log(doc.id, " => ", doc.data());
       result = result.concat({
         id: doc.id,
         ...doc.data()
       })
 
     });
+    console.log('result', result)
     setTokens(result)
   }
 

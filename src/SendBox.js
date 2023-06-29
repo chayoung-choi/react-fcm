@@ -3,7 +3,6 @@ import {useEffect, useState} from "react";
 import axios from "axios";
 
 const SendBox = (props) => {
-
   const {
     tokenList
   } = props
@@ -13,12 +12,7 @@ const SendBox = (props) => {
   const [notiBody, setNotiBody] = useState("Push 내용입니다.")
   const [inputToken, setInputToken] = useState('')
   const [isInvalid, setIsInvalid] = useState(false)
-  const [selectedTokenList, setSelectedTokenList] = useState()
-
-  useEffect(() => {
-    setSelectedTokenList(
-        tokenList.filter(t => t.defaultCheck).map(t => t.value))
-  }, [])
+  const [selectedTokenList, setSelectedTokenList] = useState([])
 
   const sendPush = () => {
     console.log('sendPush', inputToken, selectedTokenList)
@@ -68,6 +62,11 @@ const SendBox = (props) => {
     }
   }
 
+  useEffect(() => {
+    setSelectedTokenList(
+        tokenList.filter(t => t.defaultCheck).map(t => t.token))
+  }, [tokenList])
+  
   return <>
     <div className="accordion w-100" id="accordionExample" key="sendBox">
       <div className="accordion-item">
@@ -100,10 +99,9 @@ const SendBox = (props) => {
                     <div className="form-check d-inline-block me-3"
                          key={t.id}>
                       <input className="form-check-input" type="checkbox"
-                             value={t.value}
-                             defaultChecked={t.defaultCheck}
-                          // onChange={e => onChangeCheckBox(
-                          //     e.target)}
+                             value={t.token}
+                             defaultChecked={selectedTokenList?.find(
+                                 s => s === t.token)}
                              onChange={({
                                target
                              }) => onChangeCheckBox(target)}
