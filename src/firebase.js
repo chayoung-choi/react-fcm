@@ -1,5 +1,11 @@
 import {initializeApp} from "firebase/app";
-import {getMessaging, getToken, onMessage} from "firebase/messaging";
+import {
+  getMessaging,
+  getToken,
+  isSupported,
+  onMessage
+} from "firebase/messaging";
+import {getFirestore} from "firebase/firestore";
 
 const firebaseApp = initializeApp({
   apiKey: process.env.REACT_APP_API_KEY,
@@ -10,30 +16,59 @@ const firebaseApp = initializeApp({
   appId: process.env.REACT_APP_APP_ID,
   measurementId: process.env.REACT_APP_MEASUREMENT_ID
 });
-export const messaging = getMessaging(firebaseApp);
-export const getFcmToken = (setFcmToken) => {
-  return getToken(messaging, {vapidKey: process.env.REACT_APP_VAPID_KEY}).then((currentToken) => {
-    if (currentToken) {
-      console.log('current token for client: ', currentToken);
-      setFcmToken(currentToken);
-      // Track the token -> client mapping, by sending to backend server
-      // show on the UI that permission is secured
-    } else {
-      console.log('No registration token available. Request permission to generate one.');
-      setFcmToken(null);
-      // shows on the UI that permission is required
+
+const messaging = (async () => {
+  try {
+    const isSupportedBrowser = await isSupported();
+    if (isSupportedBrowser) {
+      return getMessaging(firebaseApp);
     }
-  }).catch((err) => {
+    console.error('Firebase not supported this browser');
+    return null;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+})();
+
+export const db = getFirestore(firebaseApp);
+
+// export const onMessageListener = () =>
+//     new Promise((resolve) => {
+//       onMessage(messaging, (payload) => {
+//         console.log("[firebase.js onMessageListener]", payload)
+//         resolve(payload);
+//       });
+//     });
+
+export const getFcmToken = async (setFcmToken) => {
+  return getToken(await messaging,
+      {vapidKey: process.env.REACT_APP_VAPID_KEY}).then(
+      (currentToken) => {
+        if (currentToken) {
+          console.log('current token for client: ', currentToken);
+          setFcmToken(currentToken);
+          // Track the token -> client mapping, by sending to backend server
+          // show on the UI that permission is secured
+        } else {
+          console.log(
+              'No registration token available. Request permission to generate one.');
+          setFcmToken(null);
+          // shows on the UI that permission is required
+        }
+      }).catch((err) => {
     console.log('An error occurred while retrieving token. ', err);
     setFcmToken(null);
     // catch error while creating client token
   });
 }
-
-export const onMessageListener = () =>
-  new Promise((resolve) => {
-    onMessage(messaging, (payload) => {
-      console.log("[firebase.js onMessageListener]", payload)
-      resolve(payload);
-    });
-  });
+export const onMessageListener = async () =>
+    new Promise((resolve) =>
+        (async () => {
+          const messagingResolve = await messaging;
+          onMessage(messagingResolve, (payload) => {
+            console.log('On message: ', messaging, payload);
+            resolve(payload);
+          });
+        })()
+    );
